@@ -44,7 +44,12 @@ int force_keyframe = 0;
 
 void *stream_thread(void *data)
 {
+start:
     struct window_node *window = (struct window_node*)data;
+    if(window->height == 0 || window->width == 0){
+        sleep(2);
+        goto start;
+    }
     x264_param_t param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
