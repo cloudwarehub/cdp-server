@@ -247,6 +247,8 @@ void *xorg_thread()
 
 int main(int argc, char *argv[])
 {
+    INIT_LIST_HEAD(&window_list.list_node);
+    INIT_LIST_HEAD(&client_list.list_node);
     pthread_t xthread;
     pthread_create(&xthread, NULL, xorg_thread, NULL);
     
