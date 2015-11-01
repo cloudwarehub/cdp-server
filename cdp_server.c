@@ -162,7 +162,7 @@ struct window_node *add_window(xcb_window_t wid)
     window->height = geo->height;
     window->override_redirect = attr->override_redirect;
     window->viewable = attr->map_state == XCB_MAP_STATE_VIEWABLE?1:0;
-    pthread_create(&window->sthread, NULL, stream_thread, &window);
+    pthread_create(&window->sthread, NULL, stream_thread, window);
     list_add_tail(&window->list_node, &window_list.list_node);
     free(geo);
     free(attr);
