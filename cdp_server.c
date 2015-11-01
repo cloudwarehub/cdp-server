@@ -48,6 +48,7 @@ void *stream_thread(void *data)
     if(window->height == 0 || window->width == 0){
         return;
     }
+    printf("%d %d\n", window->width, window->height);
     x264_param_t param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
