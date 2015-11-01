@@ -1,0 +1,6 @@
+#define CDP_RECOVER     0
+#define CDP_KEY
+enum CDP_REQUEST {
+    CDP_REQUEST_RECOVER,
+    CDP_REQUEST_LISTEN,
+};
