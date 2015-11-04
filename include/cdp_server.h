@@ -4,8 +4,8 @@
 #include "list.h"
 
 enum CDP_REQUEST {
-    CDP_REQUEST_GET_WINDOWS,
-    CDP_REQUEST_LISTEN,
+    CDP_REQUEST_GET_WINDOWS = 1,
+    CDP_REQUEST_LISTEN = 2,
 };
 
 typedef struct {

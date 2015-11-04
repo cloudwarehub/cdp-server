@@ -112,7 +112,7 @@ void *stream_thread(void *data)
                     _buf[4] = length;
                     _buf[8] = window.id;
                     memcpy(&_buf[12], nal[i].p_payload, nal[i].i_payload);
-                    sendto(sockfd, _buf, length, 0, (struct sockaddr *)&iter->sockaddr, sizeof(struct sockaddr_in));
+                    //sendto(sockfd, _buf, length, 0, (struct sockaddr *)&iter->sockaddr, sizeof(struct sockaddr_in));
                 }
         	}
 		}
@@ -161,6 +161,7 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
 {
     switch(buf[0]) {
         case CDP_REQUEST_LISTEN:
+            printf("new listen client\n");
             add_client(sockaddr);
         break;
     }
