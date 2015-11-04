@@ -10,28 +10,10 @@
 #include <xcb/composite.h>
 #include <x264.h>
 #include "list.h"
-#include "cdp.h"
 #include "libyuv/convert.h"
+#include "cdp_server.h"
 
 #define PORT 1234
-
-struct client_node{
-    struct list_head list_node;
-    struct sockaddr_in sockaddr;
-};
-
-struct window_node{
-    struct list_head list_node;
-    xcb_window_t wid;
-    int16_t x;
-    int16_t y;
-    uint16_t width;
-    uint16_t height;
-    char override_redirect;
-    char viewable;
-    pthread_t sthread; // stream_thread id
-    x264_param_t param;
-};
 
 struct client_node client_list;
 struct window_node window_list;
@@ -44,11 +26,13 @@ int force_keyframe = 0;
 
 void *stream_thread(void *data)
 {
-    struct window_node *window = (struct window_node*)data;
-    if(window->height == 0 || window->width == 0){
+    struct window_node *windownode = (struct window_node*)data;
+    cdp_window_t window = windownode->window;
+    
+    if(window.height == 0 || window.width == 0){
         return;
     }
-    printf("%d %d\n", window->width, window->height);
+    printf("%d %d\n", window.width, window.height);
     x264_param_t param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
@@ -58,8 +42,8 @@ void *stream_thread(void *data)
 	int i_nal;
 	x264_param_default_preset(&param, "veryfast", "zerolatency");
 	param.i_csp = X264_CSP_I420;
-	param.i_width = window->width;
-	param.i_height = window->height;
+	param.i_width = window.width;
+	param.i_height = window.height;
 	param.i_slice_max_size = 1490; // size less than MTU(1500) for udp
 	
 	param.b_vfr_input = 0;
@@ -83,12 +67,12 @@ void *stream_thread(void *data)
 		goto fail2;
 	}
 
-	int	luma_size = window->width * window->height;
+	int	luma_size = window.width * window.height;
 	int	chroma_size	= luma_size / 4;
 	xcb_get_image_reply_t	*img;
 	for (;; i_frame++ ) {
 	    usleep(60000);
-	    if(!window->viewable){
+	    if(!window.viewable){
 	        continue;
 	    }
 	    if(list_empty(&client_list.list_node)){
@@ -96,19 +80,19 @@ void *stream_thread(void *data)
 	        continue;
 	    }
 		img = xcb_get_image_reply(xconn,
-					   xcb_get_image(xconn, XCB_IMAGE_FORMAT_Z_PIXMAP, window->wid,
-							  0, 0, window->width, window->height, ~0 ), NULL);
+					   xcb_get_image(xconn, XCB_IMAGE_FORMAT_Z_PIXMAP, window.id,
+							  0, 0, window.width, window.height, ~0 ), NULL);
 		if ( img == NULL ) {// often coursed by GL window
 			printf("get image error\n");
 			sleep( 5 );
 			continue;
 		}
 
-		ARGBToI420(xcb_get_image_data(img), window->width * 4,
-			    pic.img.plane[0], window->width,
-			    pic.img.plane[1], window->width / 2,
-			    pic.img.plane[2], window->width / 2,
-			    window->width, window->height );
+		ARGBToI420(xcb_get_image_data(img), window.width * 4,
+			    pic.img.plane[0], window.width,
+			    pic.img.plane[1], window.width / 2,
+			    pic.img.plane[2], window.width / 2,
+			    window.width, window.height );
 		free(img);
 	    pic.i_pts = i_frame;
     	i_frame_size = x264_encoder_encode(h, &nal, &i_nal, &pic, &pic_out);
@@ -126,7 +110,7 @@ void *stream_thread(void *data)
                     char _buf[length];
                     _buf[0] = 1;
                     _buf[4] = length;
-                    _buf[8] = window->wid;
+                    _buf[8] = window.id;
                     memcpy(&_buf[12], nal[i].p_payload, nal[i].i_payload);
                     sendto(sockfd, _buf, length, 0, (struct sockaddr *)&iter->sockaddr, sizeof(struct sockaddr_in));
                 }
@@ -150,30 +134,32 @@ struct client_node *add_client(struct sockaddr_in sockaddr)
 
 struct window_node *add_window(xcb_window_t wid)
 {
-    struct window_node *window;
-    window = (struct window_node*)malloc(sizeof(struct window_node));
+    struct window_node *windownode;
+    cdp_window_t *window;
+    windownode = (struct window_node*)malloc(sizeof(struct window_node));
+    window = &windownode->window;
+    
     xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, wid), NULL);
     xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, wid), NULL);
 
-    window->wid = wid;
+    window->id = wid;
     window->x = geo->x;
     window->y = geo->y;
     window->width = geo->width;
     window->height = geo->height;
-    window->override_redirect = attr->override_redirect;
+    window->override = attr->override_redirect;
     window->viewable = attr->map_state == XCB_MAP_STATE_VIEWABLE?1:0;
-    pthread_create(&window->sthread, NULL, stream_thread, window);
-    list_add_tail(&window->list_node, &window_list.list_node);
+    pthread_create(&windownode->sthread, NULL, stream_thread, window);
+    list_add_tail(&windownode->list_node, &window_list.list_node);
     free(geo);
     free(attr);
-    return window;
+    cdp_message_create_window(window);
+    return windownode;
 }
 
 void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
 {
     switch(buf[0]) {
-        case CDP_REQUEST_RECOVER:
-        break;
         case CDP_REQUEST_LISTEN:
             add_client(sockaddr);
         break;
@@ -209,7 +195,7 @@ void *xorg_thread()
     xcb_map_notify_event_t *mne;
     xcb_unmap_notify_event_t *umne;
     xcb_destroy_notify_event_t *dne;
-    struct window_node *iter; 
+    struct window_node *iter;
     while (event = xcb_wait_for_event (xconn)) {
         switch (event->response_type & ~0x80) {
             case XCB_CREATE_NOTIFY:
@@ -219,8 +205,8 @@ void *xorg_thread()
             case XCB_MAP_NOTIFY:
                 mne = (xcb_map_notify_event_t*)event;
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->wid == mne->window){
-            	        iter->viewable = 1;
+            	    if(iter->window.id == mne->window){
+            	        iter->window.viewable = 1;
             	        break;
             	    }
             	}
@@ -228,8 +214,8 @@ void *xorg_thread()
             case XCB_UNMAP_NOTIFY:
                 umne = (xcb_unmap_notify_event_t*)event;
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->wid == mne->window){
-            	        iter->viewable = 0;
+            	    if(iter->window.id == mne->window){
+            	        iter->window.viewable = 0;
             	        break;
             	    }
             	}
@@ -237,7 +223,7 @@ void *xorg_thread()
             case XCB_DESTROY_NOTIFY:
                 dne = (xcb_destroy_notify_event_t*)event;
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->wid == mne->window){
+            	    if(iter->window.id == mne->window){
             	        list_del(&iter->list_node);
             	        free(iter);
             	        break;
