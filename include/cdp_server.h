@@ -25,7 +25,9 @@ struct client_node{
 
 struct window_node{
     struct list_head list_node;
-    cdp_window_t window;
+    cdp_window_t *window;
     pthread_t sthread; // stream_thread id
     x264_param_t param;
 };
+
+void *stream_thread(void *data);

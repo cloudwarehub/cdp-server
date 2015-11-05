@@ -27,12 +27,12 @@ int force_keyframe = 0;
 void *stream_thread(void *data)
 {
     struct window_node *windownode = (struct window_node*)data;
-    cdp_window_t window = windownode->window;
+    cdp_window_t *window = windownode->window;
     
-    if(window.height == 0 || window.width == 0){
+    if(window->height == 0 || window->width == 0){
         return;
     }
-    printf("%d %d\n", window.width, window.height);
+    printf("%d %d\n", window->width, window->height);
     x264_param_t param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
@@ -42,8 +42,8 @@ void *stream_thread(void *data)
 	int i_nal;
 	x264_param_default_preset(&param, "veryfast", "zerolatency");
 	param.i_csp = X264_CSP_I420;
-	param.i_width = window.width;
-	param.i_height = window.height;
+	param.i_width = window->width;
+	param.i_height = window->height;
 	param.i_slice_max_size = 1490; // size less than MTU(1500) for udp
 	
 	param.b_vfr_input = 0;
@@ -67,12 +67,12 @@ void *stream_thread(void *data)
 		goto fail2;
 	}
 
-	int	luma_size = window.width * window.height;
+	int	luma_size = window->width * window->height;
 	int	chroma_size	= luma_size / 4;
 	xcb_get_image_reply_t	*img;
 	for (;; i_frame++ ) {
 	    usleep(60000);
-	    if(!window.viewable){
+	    if(!window->viewable){
 	        continue;
 	    }
 	    if(list_empty(&client_list.list_node)){
@@ -80,19 +80,19 @@ void *stream_thread(void *data)
 	        continue;
 	    }
 		img = xcb_get_image_reply(xconn,
-					   xcb_get_image(xconn, XCB_IMAGE_FORMAT_Z_PIXMAP, window.id,
-							  0, 0, window.width, window.height, ~0 ), NULL);
+					   xcb_get_image(xconn, XCB_IMAGE_FORMAT_Z_PIXMAP, window->id,
+							  0, 0, window->width, window->height, ~0 ), NULL);
 		if ( img == NULL ) {// often coursed by GL window
 			printf("get image error\n");
 			sleep( 5 );
 			continue;
 		}
 
-		ARGBToI420(xcb_get_image_data(img), window.width * 4,
-			    pic.img.plane[0], window.width,
-			    pic.img.plane[1], window.width / 2,
-			    pic.img.plane[2], window.width / 2,
-			    window.width, window.height );
+		ARGBToI420(xcb_get_image_data(img), window->width * 4,
+			    pic.img.plane[0], window->width,
+			    pic.img.plane[1], window->width / 2,
+			    pic.img.plane[2], window->width / 2,
+			    window->width, window->height );
 		free(img);
 	    pic.i_pts = i_frame;
     	i_frame_size = x264_encoder_encode(h, &nal, &i_nal, &pic, &pic_out);
@@ -102,19 +102,10 @@ void *stream_thread(void *data)
     	}
     	if (i_frame_size){
     	    int i;
-        	struct client_node *iter; 
-        	list_for_each_entry(iter, &client_list.list_node, list_node) {
-        	    for (i = 0; i < i_nal; ++i) {
-                    printf("nal size: %d\n", nal[i].i_payload);
-                    int length = 12 + nal[i].i_payload;
-                    char _buf[length];
-                    _buf[0] = 1;
-                    _buf[4] = length;
-                    _buf[8] = window.id;
-                    memcpy(&_buf[12], nal[i].p_payload, nal[i].i_payload);
-                    //sendto(sockfd, _buf, length, 0, (struct sockaddr *)&iter->sockaddr, sizeof(struct sockaddr_in));
-                }
-        	}
+    	    for (i = 0; i < i_nal; ++i) {
+    	        cdp_message_window_frame(window->id, nal[i].p_payload, nal[i].i_payload);
+                printf("nal size: %d\n", nal[i].i_payload);
+            }
 		}
 	}
 	
@@ -130,31 +121,6 @@ struct client_node *add_client(struct sockaddr_in sockaddr)
     client->sockaddr = sockaddr;
     list_add_tail(&client->list_node, &client_list.list_node);
     return client;
-}
-
-struct window_node *add_window(xcb_window_t wid)
-{
-    struct window_node *windownode;
-    cdp_window_t *window;
-    windownode = (struct window_node*)malloc(sizeof(struct window_node));
-    window = &windownode->window;
-    
-    xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, wid), NULL);
-    xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, wid), NULL);
-
-    window->id = wid;
-    window->x = geo->x;
-    window->y = geo->y;
-    window->width = geo->width;
-    window->height = geo->height;
-    window->override = attr->override_redirect;
-    window->viewable = attr->map_state == XCB_MAP_STATE_VIEWABLE?1:0;
-    pthread_create(&windownode->sthread, NULL, stream_thread, windownode);
-    list_add_tail(&windownode->list_node, &window_list.list_node);
-    free(geo);
-    free(attr);
-    cdp_message_create_window(window);
-    return windownode;
 }
 
 void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
@@ -201,35 +167,48 @@ void *xorg_thread()
         switch (event->response_type & ~0x80) {
             case XCB_CREATE_NOTIFY:
                 cne = (xcb_create_notify_event_t*)event;
-                add_window(cne->window);
+                cdp_window_t *window;
+                window = (cdp_window_t*)malloc(sizeof(cdp_window_t));
+                
+                xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, cne->window), NULL);
+                xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, cne->window), NULL);
+            
+                window->id = cne->window;
+                window->x = geo->x;
+                window->y = geo->y;
+                window->width = geo->width;
+                window->height = geo->height;
+                window->override = attr->override_redirect;
+                window->viewable = attr->map_state == XCB_MAP_STATE_VIEWABLE?1:0;
+                free(geo);
+                free(attr);
+                cdp_message_create_window(window);
+                add_window(window);
             break;
             case XCB_MAP_NOTIFY:
                 mne = (xcb_map_notify_event_t*)event;
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->window.id == mne->window){
-            	        iter->window.viewable = 1;
+            	    if(iter->window->id == mne->window){
+            	        iter->window->viewable = 1;
             	        break;
             	    }
             	}
+            	cdp_message_show_window(mne->window);
             break;
             case XCB_UNMAP_NOTIFY:
                 umne = (xcb_unmap_notify_event_t*)event;
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->window.id == mne->window){
-            	        iter->window.viewable = 0;
+            	    if(iter->window->id == umne->window){
+            	        iter->window->viewable = 0;
             	        break;
             	    }
             	}
+            	cdp_message_hide_window(umne->window);
             break;
             case XCB_DESTROY_NOTIFY:
                 dne = (xcb_destroy_notify_event_t*)event;
-            	list_for_each_entry(iter, &window_list.list_node, list_node) {
-            	    if(iter->window.id == mne->window){
-            	        list_del(&iter->list_node);
-            	        free(iter);
-            	        break;
-            	    }
-            	}
+            	cdp_message_destroy_window(dne->window);
+            	remove_window(dne->window);
             break;
         }
     }
