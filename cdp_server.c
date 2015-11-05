@@ -184,6 +184,7 @@ void *xorg_thread()
                 free(geo);
                 free(attr);
                 cdp_message_create_window(window);
+                printf("%d, %d", window->width, window->height);
                 add_window(window);
             break;
             case XCB_MAP_NOTIFY:
