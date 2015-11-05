@@ -3,11 +3,6 @@
 #include <x264.h>
 #include "list.h"
 
-enum CDP_REQUEST {
-    CDP_REQUEST_GET_WINDOWS = 1,
-    CDP_REQUEST_LISTEN = 2,
-};
-
 typedef struct {
     uint32_t id;
     int16_t x;

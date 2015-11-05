@@ -47,9 +47,9 @@ void cdp_message_show_window(u32 id)
     cdp_cast_message(&msg, sizeof(msg));
 }
 
-void cdp_message_show_window(u32 id)
+void cdp_message_hide_window(u32 id)
 {
-    cdp_message_show_window_t msg;
+    cdp_message_hide_window_t msg;
     msg.msgtype = CDP_MESSAGE_HIDE_WINDOW;
     msg.window = id;
     cdp_cast_message(&msg, sizeof(msg));

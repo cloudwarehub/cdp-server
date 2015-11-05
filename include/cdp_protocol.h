@@ -15,6 +15,11 @@ enum CDP_MESSAGE {
     CDP_MESSAGE_WINDOW_FRAME
 };
 
+enum CDP_REQUEST {
+    CDP_REQUEST_GET_WINDOWS = 1,
+    CDP_REQUEST_LISTEN = 2,
+};
+
 typedef struct {
     u8 msgtype;
     u8 _pad;
