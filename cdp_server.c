@@ -154,7 +154,7 @@ void *xorg_thread()
     xcb_window_t *children = xcb_query_tree_children(tree);
     int i = 0;
     for (i; i < xcb_query_tree_children_length(tree); i++) {
-        add_window(children[i]);
+        add_window_byid(children[i]);
     }
     free(tree);
     
