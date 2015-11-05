@@ -2,9 +2,8 @@
 
 void padto4(int *num)
 {
-    int n = *num;
-    if (n % 4) {
-        retur
+    if ((*num % 4) == 0) {
+        return;
     }
-    *num = n + (4 - (n % 4));
+    *num = *num + (4 - (*num % 4));
 }
