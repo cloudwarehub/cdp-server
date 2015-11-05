@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "cdp_protocol.h"
 #include "cdp_server.h"
 
@@ -64,5 +65,6 @@ void cdp_message_window_frame(u32 wid, char *frame_data, int size)
     msg->length = length;
     msg->window = wid;
     memcpy(&buf[sizeof(cdp_message_window_frame_t)], frame_data, size);
+    printf("%d, %d", length, sizeof(cdp_message_window_frame_t))
     cdp_cast_message(buf, length);
 }
