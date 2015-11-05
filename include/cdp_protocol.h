@@ -1,3 +1,6 @@
+#ifndef CDP_PROTOCOL_H
+#define CDP_PROTOCOL_H
+
 #include <stdint.h>
 
 typedef uint8_t u8;
@@ -66,3 +69,5 @@ typedef struct {
     u32 length;
     u32 window;
 } cdp_message_window_frame_t;
+
+#endif

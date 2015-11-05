@@ -59,6 +59,7 @@ void cdp_message_hide_window(u32 id)
 void cdp_message_window_frame(u32 wid, char *frame_data, int size)
 {
     int length = sizeof(cdp_message_window_frame_t) + size;
+    padto4(&length);
     char buf[length];
     cdp_message_window_frame_t *msg = (cdp_message_window_frame_t*)buf;
     msg->msgtype = CDP_MESSAGE_WINDOW_FRAME;

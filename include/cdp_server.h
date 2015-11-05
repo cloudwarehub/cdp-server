@@ -1,3 +1,6 @@
+#ifndef CDP_SERVER_H
+#define CDP_SERVER_H
+
 #include <stdint.h>
 #include <netinet/in.h>
 #include <x264.h>
@@ -26,3 +29,5 @@ struct window_node{
 };
 
 void *stream_thread(void *data);
+
+#endif
