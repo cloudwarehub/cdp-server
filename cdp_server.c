@@ -12,6 +12,7 @@
 #include "list.h"
 #include "libyuv/convert.h"
 #include "cdp_server.h"
+#include "cdp_protocol.h"
 
 #define PORT 1234
 
