@@ -68,6 +68,7 @@ typedef struct {
     u16 sequence;
     u32 length;
     u32 window;
+    u32 frame_size;
 } cdp_message_window_frame_t;
 
 #endif
