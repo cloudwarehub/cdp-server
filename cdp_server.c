@@ -59,7 +59,7 @@ void *xorg_thread()
 	root = screen->root;
 	uint32_t mask[] = { XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY };
 	xcb_change_window_attributes(xconn, root, XCB_CW_EVENT_MASK, mask);
-    //xcb_composite_redirect_subwindows(c, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
+    xcb_composite_redirect_subwindows(c, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
     xcb_query_tree_reply_t *tree = xcb_query_tree_reply(xconn, xcb_query_tree(xconn, root), NULL);
     xcb_window_t *children = xcb_query_tree_children(tree);
     int i = 0;
