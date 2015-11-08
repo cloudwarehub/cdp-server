@@ -57,9 +57,9 @@ void *xorg_thread()
 	}
 	screen = xcb_setup_roots_iterator(xcb_get_setup(xconn)).data;
 	root = screen->root;
+    xcb_composite_redirect_subwindows(c, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
 	uint32_t mask[] = { XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY };
 	xcb_change_window_attributes(xconn, root, XCB_CW_EVENT_MASK, mask);
-    xcb_composite_redirect_subwindows(c, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
     xcb_query_tree_reply_t *tree = xcb_query_tree_reply(xconn, xcb_query_tree(xconn, root), NULL);
     xcb_window_t *children = xcb_query_tree_children(tree);
     int i = 0;
@@ -75,24 +75,25 @@ void *xorg_thread()
     xcb_destroy_notify_event_t *dne;
     struct window_node *iter;
     while (event = xcb_wait_for_event (xconn)) {
+        printf("new event: %d\n", event->response_type);
         switch (event->response_type & ~0x80) {
             case XCB_CREATE_NOTIFY:
                 cne = (xcb_create_notify_event_t*)event;
                 cdp_window_t *window;
                 window = (cdp_window_t*)malloc(sizeof(cdp_window_t));
                 
-                xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, cne->window), NULL);
-                xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, cne->window), NULL);
+                //xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, cne->window), NULL);
+                //xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, cne->window), NULL);
             
                 window->id = cne->window;
-                window->x = geo->x;
-                window->y = geo->y;
-                window->width = geo->width;
-                window->height = geo->height;
-                window->override = attr->override_redirect;
-                window->viewable = attr->map_state == XCB_MAP_STATE_VIEWABLE?1:0;
-                free(geo);
-                free(attr);
+                window->x = cne->x;
+                window->y = cne->y;
+                window->width = cne->width;
+                window->height = cne->height;
+                window->override = cne->override_redirect;
+                window->viewable = 0;
+                //free(geo);
+                //free(attr);
                 cdp_message_create_window(window);
                 add_window(window);
             break;
