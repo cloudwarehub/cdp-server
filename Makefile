@@ -9,7 +9,7 @@ LIB     := -lx264 -lm -lxcb -lpthread -lxcb-composite
 $(PROGRAM): $(OBJS)
 	$(CC) -g -o $@ $^ $(LIB) $(INCLUDE)
 %.o: %.c
-	$(CC) -g -o $@ -c $< $(CFLAGS) $(INCLUDE)
+	$(CC) -g -o $@ -c $<  $(CFLAGS) $(INCLUDE)
 %.o: %.cc
 	$(CC) -g -o $@ -c $< $(CFLAGS) $(INCLUDE)
 clean:

@@ -4,6 +4,7 @@
 #include "cdp_server.h"
 #include "cdp_protocol.h"
 #include "list.h"
+#include "cdp_stream.h"
 
 extern struct window_node window_list;
 
