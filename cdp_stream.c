@@ -23,8 +23,11 @@ void *stream_thread(void *data)
     width = window->width;
     height = window->height;
     printf("%d %d\n", window->width, window->height);
-    if(window->width % 2){
+    if(width % 2){
     	width--;
+    }
+    if(height % 2){
+    	height--;
     }
     x264_param_t param;
 	x264_picture_t pic, pic_out;
