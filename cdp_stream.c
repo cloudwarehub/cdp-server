@@ -14,11 +14,18 @@ void *stream_thread(void *data)
 {
     struct window_node *windownode = (struct window_node*)data;
     cdp_window_t *window = windownode->window;
+    uint16_t width;
+    uint16_t height;
     
     if(window->height <= 4 || window->width <= 4){
         return;
     }
+    width = window->width;
+    height = window->height;
     printf("%d %d\n", window->width, window->height);
+    if(window->width % 2){
+    	width--;
+    }
     x264_param_t param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
@@ -28,8 +35,8 @@ void *stream_thread(void *data)
 	int i_nal;
 	x264_param_default_preset(&param, "veryfast", "zerolatency");
 	param.i_csp = X264_CSP_I420;
-	param.i_width = window->width;
-	param.i_height = window->height;
+	param.i_width = width;
+	param.i_height = height;
 	param.i_slice_max_size = 1490; // size less than MTU(1500) for udp
 	
 	param.b_vfr_input = 0;
@@ -67,18 +74,18 @@ void *stream_thread(void *data)
 	    }
 		img = xcb_get_image_reply(xconn,
 					   xcb_get_image(xconn, XCB_IMAGE_FORMAT_Z_PIXMAP, window->id,
-							  0, 0, window->width, window->height, ~0 ), NULL);
+							  0, 0, width, height, ~0 ), NULL);
 		if ( img == NULL ) {// often coursed by GL window
 			printf("get image error\n");
 			sleep( 5 );
 			continue;
 		}
 
-		ARGBToI420(xcb_get_image_data(img), window->width * 4,
-			    pic.img.plane[0], window->width,
-			    pic.img.plane[1], window->width / 2,
-			    pic.img.plane[2], window->width / 2,
-			    window->width, window->height );
+		ARGBToI420(xcb_get_image_data(img), width * 4,
+			    pic.img.plane[0], width,
+			    pic.img.plane[1], width / 2,
+			    pic.img.plane[2], width / 2,
+			    width, height );
 		free(img);
 	    pic.i_pts = i_frame;
     	i_frame_size = x264_encoder_encode(h, &nal, &i_nal, &pic, &pic_out);
