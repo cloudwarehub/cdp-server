@@ -15,8 +15,7 @@ struct window_node *add_window(cdp_window_t *window)
     struct window_node *windownode;
     windownode = (struct window_node*)malloc(sizeof(struct window_node));
     windownode->window = window;
-    
-    pthread_create(&windownode->sthread, NULL, stream_thread, windownode);
+    windownode->sthread = NULL
     list_add_tail(&windownode->list_node, &window_list.list_node);
     return windownode;
 }
