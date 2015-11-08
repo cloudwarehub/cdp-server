@@ -73,6 +73,7 @@ void *xorg_thread()
     xcb_map_notify_event_t *mne;
     xcb_unmap_notify_event_t *umne;
     xcb_destroy_notify_event_t *dne;
+    xcb_configure_notify_event_t *cone;
     struct window_node *iter;
     while (event = xcb_wait_for_event (xconn)) {
         printf("new event: %d\n", event->response_type);
@@ -123,6 +124,11 @@ void *xorg_thread()
                 dne = (xcb_destroy_notify_event_t*)event;
             	cdp_message_destroy_window(dne->window);
             	remove_window(dne->window);
+            break;
+            case XCB_CONFIGURE_NOTIFY:
+                cone = (xcb_configure_notify_event_t*)event;
+                cdp_window_t *w = cdp_window_configure(cone->window, cone->x, cone->y, cone->width, cone->height, cone->override_redirect, cone->above_sibling);
+                cdp_message_configure_window(w);
             break;
         }
     }

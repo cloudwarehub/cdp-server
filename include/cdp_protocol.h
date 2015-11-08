@@ -15,7 +15,8 @@ enum CDP_MESSAGE {
     CDP_MESSAGE_DESTROY_WINDOW,
     CDP_MESSAGE_SHOW_WINDOW,
     CDP_MESSAGE_HIDE_WINDOW,
-    CDP_MESSAGE_WINDOW_FRAME
+    CDP_MESSAGE_WINDOW_FRAME,
+    CDP_MESSAGE_CONFIGURE_WINDOW
 };
 
 enum CDP_REQUEST {
@@ -70,5 +71,21 @@ typedef struct {
     u32 window;
     u32 frame_size;
 } cdp_message_window_frame_t;
+
+typedef struct {
+    u8 msgtype;
+    u8 _pad;
+    u16 sequence;
+    u32 length;
+    u32 window;
+    i16 x;
+    i16 y;
+    u16 width;
+    u16 height;
+    u32 above;
+    u8 override;
+    u8 _pad1;
+    u16 _pad2;
+} cdp_message_configure_window_t;
 
 #endif

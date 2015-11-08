@@ -14,6 +14,7 @@ typedef struct {
     uint16_t height;
     char override;
     char viewable;
+    uint32_t above;
 } cdp_window_t;
 
 struct client_node{
@@ -27,7 +28,5 @@ struct window_node{
     pthread_t sthread; // stream_thread id
     x264_param_t param;
 };
-
-void *stream_thread(void *data);
 
 #endif

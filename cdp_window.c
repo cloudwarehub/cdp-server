@@ -73,3 +73,25 @@ void hide_window(u32 wid)
 	    }
 	}
 }
+
+cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height, u8 override, u32 above)
+{
+    struct window_node *iter;
+    cdp_window_t *window = NULL;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+	    if(iter->window->id == wid){
+	        window = iter->window;
+	        break;
+	    }
+	}
+	if(!window){
+	    return NULL;
+	}
+    window->x = x;
+    window->y = y;
+    window->width = width;
+    window->height = height;
+    window->override = override;
+    window->above = above;
+	return window;
+}

@@ -70,3 +70,17 @@ void cdp_message_window_frame(u32 wid, char *frame_data, int size)
     printf("%d, %d", length, sizeof(cdp_message_window_frame_t));
     cdp_cast_message(buf, length);
 }
+
+void cdp_message_configure_window(cdp_window_t *window)
+{
+    cdp_message_configure_window_t msg;
+    msg.msgtype = CDP_MESSAGE_CONFIGURE_WINDOW;
+    msg.window = window->id;
+    msg.x = window->x;
+    msg.y = window->y;
+    msg.width = window->width;
+    msg.height = window->height;
+    msg.override = window->override;
+    msg.above = window->above;
+    cdp_cast_message(&msg, sizeof(msg));
+}
