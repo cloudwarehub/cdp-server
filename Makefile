@@ -7,7 +7,7 @@ INCLUDE := -I ./vendor/libyuv/include -I ./include
 LIB     := -lx264 -lm -lxcb -lpthread -lxcb-composite
 
 $(PROGRAM): $(OBJS)
-	$(CC) -g -o $@ $^ -static $(LIB) $(INCLUDE)
+	$(CC) -g -o $@ $^ $(LIB) $(INCLUDE)
 	rm $(OBJS) -f
 	mv $(PROGRAM) ./dest
 %.o: %.c
