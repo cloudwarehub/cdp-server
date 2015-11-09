@@ -145,6 +145,7 @@ void usage(char *exe)
 
 int main(int argc, char *argv[])
 {
+    printf("welcome to cdp-server\n");
     int ch;
     while ((ch = getopt(argc, argv, "p:d:h")) != -1) {
         switch (ch) {
