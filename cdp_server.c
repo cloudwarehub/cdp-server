@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -14,8 +15,10 @@
 #include "cdp_server.h"
 #include "cdp_protocol.h"
 #include "cdp_stream.h"
+#include "cdp_window.h"
 
-#define PORT 1234
+int port = 5999;
+char display[20] = ":0";
 
 struct client_node client_list;
 struct window_node window_list;
@@ -48,7 +51,7 @@ void *xorg_thread()
 {
     xcb_screen_t *screen;
     xcb_window_t root;
-    xconn = xcb_connect(NULL, NULL);
+    xconn = xcb_connect(display, NULL);
 	if (xcb_connection_has_error(xconn))
 	{
 		printf("cannot connect display\n");
@@ -135,8 +138,31 @@ void *xorg_thread()
     xcb_disconnect(xconn);
 }
 
+void usage(char *exe)
+{
+    printf("Usage: %s -p [port(5999)] -d [display(:0)]\n", exe);
+}
+
 int main(int argc, char *argv[])
 {
+    int ch;
+    while ((ch = getopt(argc, argv, "p:d:h")) != -1) {
+        switch (ch) {
+            case 'p':
+                port = atoi(optarg);
+                break;
+            case 'd':
+                strcpy(display, optarg);
+                break;
+            case 'h':
+            case '?':
+                usage(argv[0]);
+                exit(-1);
+                break;
+            default:
+                break;
+        }
+    }
     INIT_LIST_HEAD(&window_list.list_node);
     INIT_LIST_HEAD(&client_list.list_node);
     pthread_t xthread;
@@ -150,7 +176,7 @@ int main(int argc, char *argv[])
     }
     bzero(&server, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(PORT);
+    server.sin_port = htons(port);
     server.sin_addr.s_addr = htonl (INADDR_ANY);
     if (bind(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr)) == -1) {
         perror("Bind error.");

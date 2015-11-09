@@ -67,7 +67,7 @@ void cdp_message_window_frame(u32 wid, char *frame_data, int size)
     msg->window = wid;
     msg->frame_size = size;
     memcpy(&buf[sizeof(cdp_message_window_frame_t)], frame_data, size);
-    printf("%d, %d", length, sizeof(cdp_message_window_frame_t));
+    printf("%d, %ld", length, sizeof(cdp_message_window_frame_t));
     cdp_cast_message(buf, length);
 }
 

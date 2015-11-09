@@ -5,6 +5,7 @@
 #include "cdp_protocol.h"
 #include "list.h"
 #include "cdp_stream.h"
+#include "cdp_window.h"
 
 extern struct window_node window_list;
 
@@ -85,7 +86,7 @@ cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height,
 	    }
 	}
 	if(!window){
-	    return NULL;
+	    return window;
 	}
     window->x = x;
     window->y = y;
