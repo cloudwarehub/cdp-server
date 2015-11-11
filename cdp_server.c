@@ -37,12 +37,21 @@ struct client_node *add_client(struct sockaddr_in sockaddr)
     return client;
 }
 
+void recover(struct sockaddr_in client)
+{
+    struct window_node *iter;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+        cdp_message_create_window(iter->window);
+    }
+}
+
 void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
 {
     switch(buf[0]) {
         case CDP_REQUEST_LISTEN:
             printf("new listen client\n");
             add_client(sockaddr);
+            recover(sockaddr);
             break;
         case CDP_REQUEST_MOUSEMOVE: ;
             cdp_request_mousemove_t *req = (cdp_request_mousemove_t*)buf;
