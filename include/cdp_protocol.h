@@ -22,7 +22,53 @@ enum CDP_MESSAGE {
 enum CDP_REQUEST {
     CDP_REQUEST_GET_WINDOWS = 1,
     CDP_REQUEST_LISTEN = 2,
+    CDP_REQUEST_MOUSEMOVE = 3,
+    CDP_REQUEST_MOUSEDOWN = 4,
+    CDP_REQUEST_MOUSEUP = 5,
+    CDP_REQUEST_KEYDOWN = 6,
+    CDP_REQUEST_KEYUP = 7
 };
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    i16 x;
+    i16 y;
+} cdp_request_mousemove_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    u32 code;
+} cdp_request_mousedown_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    u32 code;
+} cdp_request_mouseup_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    u32 code;
+} cdp_request_keydown_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    u32 code;
+} cdp_request_keyup_t;
 
 typedef struct {
     u8 msgtype;
