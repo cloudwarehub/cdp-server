@@ -7,6 +7,6 @@ RUN wget https://gist.githubusercontent.com/guodong/91b631bdfa42e5e72f21/raw/934
 ADD ./start.sh /root/start.sh
 ADD ./dest/cdp-server /root/cdp-server
 RUN chmod u+x /root/start.sh
-EXPOSE 6000
+EXPOSE 5999/udp 6000
 ENV DISPLAY :0
 CMD /root/start.sh
