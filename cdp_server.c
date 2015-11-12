@@ -58,6 +58,7 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
             break;
         case CDP_REQUEST_MOUSEMOVE: ;
             cdp_request_mousemove_t *req = (cdp_request_mousemove_t*)buf;
+            cdp_input_mousemove(req);
             break;
     }
 }
