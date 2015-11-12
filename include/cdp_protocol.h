@@ -21,8 +21,15 @@ enum CDP_REQUEST {
     CDP_REQUEST_MOUSEDOWN = 5,
     CDP_REQUEST_MOUSEUP = 6,
     CDP_REQUEST_KEYDOWN = 7,
-    CDP_REQUEST_KEYUP = 8
+    CDP_REQUEST_KEYUP = 8,
+    CDP_REQUEST_WINDOW_CONFIGURE = 9,
+    CDP_REQUEST_WINDOW_MOVE = 10,
+    CDP_REQUEST_WINDOW_RESIZE = 11,
 };
+
+/**
+ * requests
+ **/
 
 typedef struct {
     u8 reqtype;
@@ -66,6 +73,19 @@ typedef struct {
     u32 wid;
     u32 code;
 } cdp_request_keyup_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    i16 x;
+    i16 y;
+} cdp_request_window_move_t;
+
+/**
+ * messages
+ **/
 
 typedef struct {
     u8 msgtype;

@@ -96,3 +96,15 @@ cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height,
     window->above = above;
 	return window;
 }
+
+void cdp_window_move(u32 wid, i16 x, i16 y)
+{
+    struct window_node *iter;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+	    if(iter->window->id == wid){
+	        iter->window->x = x;
+	        iter->window->y = y;
+	        break;
+	    }
+	}
+}
