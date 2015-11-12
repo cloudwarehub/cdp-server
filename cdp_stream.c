@@ -102,7 +102,7 @@ void *stream_thread(void *data)
     	    int i;
     	    for (i = 0; i < i_nal; ++i) {
     	        cdp_message_window_frame(window->id, nal[i].p_payload, nal[i].i_payload);
-                printf("nal size: %d\n", nal[i].i_payload);
+                //printf("nal size: %d\n", nal[i].i_payload);
             }
 		}
 	}
