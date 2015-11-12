@@ -70,6 +70,7 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
             printf("move it\n");
             cdp_request_window_move_t *crwm = (cdp_request_window_move_t*)buf;
             cdp_window_move(crwm->wid, crwm->x, crwm->y);
+            cdp_x11_request_window_move(crwm->wid, crwm->x, crwm->y);
             break;
     }
 }
