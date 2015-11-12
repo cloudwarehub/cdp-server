@@ -87,9 +87,10 @@ void *xorg_thread()
 	}
 	screen = xcb_setup_roots_iterator(xcb_get_setup(xconn)).data;
 	root = screen->root;
-    xcb_composite_redirect_subwindows(xconn, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
-	uint32_t mask[1] = { XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE };
+	uint32_t mask[] = { XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY };
 	xcb_change_window_attributes(xconn, root, XCB_CW_EVENT_MASK, mask);
+    xcb_composite_redirect_subwindows(xconn, root, XCB_COMPOSITE_REDIRECT_AUTOMATIC);
+    
     xcb_query_tree_reply_t *tree = xcb_query_tree_reply(xconn, xcb_query_tree(xconn, root), NULL);
     xcb_window_t *children = xcb_query_tree_children(tree);
     int i = 0;
@@ -152,6 +153,8 @@ void *xorg_thread()
             	remove_window(dne->window);
             break;
             case XCB_CONFIGURE_NOTIFY:
+                printf("conf notify %d\n");
+                fflush(stdout);
                 cone = (xcb_configure_notify_event_t*)event;
                 cdp_window_t *w = cdp_window_configure(cone->window, cone->x, cone->y, cone->width, cone->height, cone->override_redirect, cone->above_sibling);
                 cdp_message_configure_window(w);
