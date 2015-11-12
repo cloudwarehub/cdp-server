@@ -122,6 +122,7 @@ void *xorg_thread()
             	list_for_each_entry(iter, &window_list.list_node, list_node) {
             	    if(iter->window->id == mne->window){
             	        iter->window->viewable = 1;
+            	        iter->window->override = mne->override_redirect;
             	        if(!iter->sthread)
                             pthread_create(&iter->sthread, NULL, stream_thread, iter);
             	        break;

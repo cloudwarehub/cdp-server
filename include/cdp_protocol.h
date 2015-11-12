@@ -94,6 +94,8 @@ typedef struct {
     u16 sequence;
     u32 length;
     u32 window;
+    u8 override;
+    u8 _pad1[3];
 } cdp_message_show_window_t;
 
 typedef struct {
