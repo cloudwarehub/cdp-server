@@ -68,11 +68,11 @@ void *stream_thread(void *data)
 	xcb_get_image_reply_t	*img;
 	for (;; i_frame++ ) {
 	    usleep(60000);
-	    if(!window->viewable){
+	    if(!window->viewable){ //should use wait
 	        continue;
 	    }
-	    if(list_empty(&client_list.list_node)){
-	        printf("client_list empty\n");
+	    if(list_empty(&client_list.list_node)){ //should use wait
+	        //printf("client_list empty\n");
 	        continue;
 	    }
 		img = xcb_get_image_reply(xconn,

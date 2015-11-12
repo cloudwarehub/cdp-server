@@ -2,13 +2,7 @@
 #define CDP_PROTOCOL_H
 
 #include <stdint.h>
-
-typedef uint8_t u8;
-typedef int8_t i8;
-typedef uint16_t u16;
-typedef int16_t i16;
-typedef uint32_t u32;
-typedef int32_t i32;
+#include <cdp_defs.h>
 
 enum CDP_MESSAGE {
     CDP_MESSAGE_CREATE_WINDOW,
@@ -22,11 +16,12 @@ enum CDP_MESSAGE {
 enum CDP_REQUEST {
     CDP_REQUEST_GET_WINDOWS = 1,
     CDP_REQUEST_LISTEN = 2,
-    CDP_REQUEST_MOUSEMOVE = 3,
-    CDP_REQUEST_MOUSEDOWN = 4,
-    CDP_REQUEST_MOUSEUP = 5,
-    CDP_REQUEST_KEYDOWN = 6,
-    CDP_REQUEST_KEYUP = 7
+    CDP_REQUEST_UNLISTEN = 3,
+    CDP_REQUEST_MOUSEMOVE = 4,
+    CDP_REQUEST_MOUSEDOWN = 5,
+    CDP_REQUEST_MOUSEUP = 6,
+    CDP_REQUEST_KEYDOWN = 7,
+    CDP_REQUEST_KEYUP = 8
 };
 
 typedef struct {

@@ -53,6 +53,9 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
             add_client(sockaddr);
             recover(sockaddr);
             break;
+        case CDP_REQUEST_UNLISTEN:
+            printf("unlisten client\n");
+            break;
         case CDP_REQUEST_MOUSEMOVE: ;
             cdp_request_mousemove_t *req = (cdp_request_mousemove_t*)buf;
             break;
