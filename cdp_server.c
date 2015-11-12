@@ -153,11 +153,11 @@ void *xorg_thread()
             	remove_window(dne->window);
             break;
             case XCB_CONFIGURE_NOTIFY:
-                printf("conf notify %d\n");
-                fflush(stdout);
                 cone = (xcb_configure_notify_event_t*)event;
                 cdp_window_t *w = cdp_window_configure(cone->window, cone->x, cone->y, cone->width, cone->height, cone->override_redirect, cone->above_sibling);
                 cdp_message_configure_window(w);
+                printf("conf notify %d %d %d %d %d\n", cone->window, cone->x, cone->y, cone->width, cone->height);
+                fflush(stdout);
             break;
         }
     }
