@@ -60,6 +60,12 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
             cdp_request_mousemove_t *req = (cdp_request_mousemove_t*)buf;
             cdp_input_mousemove(req);
             break;
+        case CDP_REQUEST_MOUSEDOWN: ;
+            cdp_input_mousedown((cdp_request_mousedown_t*)buf);
+            break;
+        case CDP_REQUEST_MOUSEUP: ;
+            cdp_input_mouseup((cdp_request_mouseup_t*)buf);
+            break;
     }
 }
 
@@ -102,9 +108,6 @@ void *xorg_thread()
                 cdp_window_t *window;
                 window = (cdp_window_t*)malloc(sizeof(cdp_window_t));
                 
-                //xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(xconn, xcb_get_geometry(xconn, cne->window), NULL);
-                //xcb_get_window_attributes_reply_t  *attr = xcb_get_window_attributes_reply(xconn, xcb_get_window_attributes(xconn, cne->window), NULL);
-            
                 window->id = cne->window;
                 window->x = cne->x;
                 window->y = cne->y;
@@ -112,8 +115,6 @@ void *xorg_thread()
                 window->height = cne->height;
                 window->override = cne->override_redirect;
                 window->viewable = 0;
-                //free(geo);
-                //free(attr);
                 cdp_message_create_window(window);
                 add_window(window);
             break;
