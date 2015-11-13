@@ -63,7 +63,8 @@ typedef struct {
     u8 _pad;
     u16 length;
     u32 wid;
-    u32 code;
+    u8 code;
+    u8 _pad1[3];
 } cdp_request_keydown_t;
 
 typedef struct {
@@ -71,7 +72,8 @@ typedef struct {
     u8 _pad;
     u16 length;
     u32 wid;
-    u32 code;
+    u8 code;
+    u8 _pad1[3];
 } cdp_request_keyup_t;
 
 typedef struct {

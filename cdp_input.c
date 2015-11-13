@@ -14,3 +14,13 @@ void cdp_input_mouseup(cdp_request_mouseup_t *req)
 {
     cdp_x11_input_mouseup(req->wid, req->code);
 }
+
+void cdp_input_keydown(cdp_request_keydown_t *req)
+{
+    cdp_x11_input_keydown(req->wid, req->code);
+}
+
+void cdp_input_keyup(cdp_request_keyup_t *req)
+{
+    cdp_x11_input_keyup(req->wid, req->code);
+}

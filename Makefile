@@ -5,7 +5,7 @@ SOURCES += $(wildcard ./x11/*.c)
 OBJS    := $(patsubst %.c,%.o,$(SOURCES))
 OBJS    := $(patsubst %.cc,%.o,$(OBJS))
 INCLUDE := -I ./vendor/libyuv/include -I ./include
-LIB     := -lx264 -lm -lxcb -lxcb-xtest -lxcb-composite -lpthread
+LIB     := -lx264 -lm -lxcb -lxcb-xtest -lxcb-composite -lxcb-keysyms -lpthread
 
 $(PROGRAM): $(OBJS)
 	$(CC) -g -o $@ $^ $(LIB) $(INCLUDE)

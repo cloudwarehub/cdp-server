@@ -66,6 +66,12 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
         case CDP_REQUEST_MOUSEUP: ;
             cdp_input_mouseup((cdp_request_mouseup_t*)buf);
             break;
+        case CDP_REQUEST_KEYDOWN:
+            cdp_input_keydown((cdp_request_keydown_t*)buf);
+            break;
+        case CDP_REQUEST_KEYUP:
+            cdp_input_keyup((cdp_request_keyup_t*)buf);
+            break;
         case CDP_REQUEST_WINDOW_MOVE: ;
             printf("move it\n");
             cdp_request_window_move_t *crwm = (cdp_request_window_move_t*)buf;
