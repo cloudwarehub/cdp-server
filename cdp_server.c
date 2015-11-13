@@ -139,10 +139,10 @@ void *xorg_thread()
             	        iter->window->override = mne->override_redirect;
             	        if(!iter->sthread)
                             pthread_create(&iter->sthread, NULL, stream_thread, iter);
+            	        cdp_message_show_window(iter->window);
             	        break;
             	    }
             	}
-            	cdp_message_show_window(mne->window);
             break;
             case XCB_UNMAP_NOTIFY:
                 umne = (xcb_unmap_notify_event_t*)event;

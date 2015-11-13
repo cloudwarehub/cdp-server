@@ -40,11 +40,12 @@ void cdp_message_destroy_window(u32 id)
     cdp_cast_message(&msg, sizeof(msg));
 }
 
-void cdp_message_show_window(u32 id)
+void cdp_message_show_window(cdp_window_t *window)
 {
     cdp_message_show_window_t msg;
     msg.msgtype = CDP_MESSAGE_SHOW_WINDOW;
-    msg.window = id;
+    msg.window = window->id;
+    msg.override = window->override;
     cdp_cast_message(&msg, sizeof(msg));
 }
 
