@@ -24,3 +24,8 @@ void cdp_input_keyup(cdp_request_keyup_t *req)
 {
     cdp_x11_input_keyup(req->wid, req->code);
 }
+
+void cdp_input_keypress(cdp_request_keypress_t *req)
+{
+    cdp_x11_input_keypress(req->wid, req->code);
+}

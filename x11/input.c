@@ -38,3 +38,9 @@ void cdp_x11_input_keyup(u32 wid, u8 code)
     // kc = xcb_key_symbols_get_keycode(syms, ks);
     xcb_test_fake_input(xconn, XCB_KEY_RELEASE, code, XCB_CURRENT_TIME, XCB_NONE, 0, 0, 0 );
 }
+
+void cdp_x11_input_keypress(u32 wid, u8 code)
+{
+    xcb_test_fake_input(xconn, XCB_KEY_PRESS, code, XCB_CURRENT_TIME, wid, 0, 0, 0 );
+    xcb_test_fake_input(xconn, XCB_KEY_RELEASE, code, XCB_CURRENT_TIME, XCB_NONE, 0, 0, 0 );
+}
