@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <x264.h>
 #include "list.h"
+#include "cdp_defs.h"
 
 typedef struct {
     uint32_t id;
@@ -29,6 +30,9 @@ struct window_node{
     pthread_t sthread; // stream_thread id
     x264_param_t param;
     int force_keyframe;
+    u16 nwidth;
+    u16 nheight;
+    int refresh;
 };
 
 #endif

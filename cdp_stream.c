@@ -21,21 +21,14 @@ void *stream_thread(void *data)
     uint16_t width;
     uint16_t height;
     
-    int prevType;
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &prevType);
+    width = windownode->nwidth;
+    height = windownode->nheight;
     
-    if(window->height <= 4 || window->width <= 4){
+    if(height <= 4 || width <= 4){
         return;
     }
-    width = window->width;
-    height = window->height;
     printf("%d %d\n", window->width, window->height);
-    if(width % 2){
-    	width--;
-    }
-    if(height % 2){
-    	height--;
-    }
+    
     x264_param_t *param = &windownode->param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
@@ -72,8 +65,6 @@ void *stream_thread(void *data)
 		goto fail2;
 	}
 
-	int	luma_size = param->i_width * param->i_width;
-	int	chroma_size	= luma_size / 4;
 	xcb_get_image_reply_t *img;
 	int interval = 60000;
 	if (windownode->window->override) {
@@ -81,10 +72,18 @@ void *stream_thread(void *data)
 	}
 	for (;; i_frame++) {
 	    usleep(interval);
-	    if(!window->viewable){ //should use wait
+	    if (windownode->refresh) {
+			param->i_width = windownode->nwidth;
+			param->i_height = windownode->nheight;
+			x264_picture_clean(&pic);
+			x264_picture_alloc(&pic, param->i_csp, param->i_width, param->i_height);
+			x264_encoder_close(h);
+			h = x264_encoder_open(param);
+	    }
+	    if (!window->viewable) { //should use wait
 	        continue;
 	    }
-	    if(list_empty(&client_list.list_node)){ //should use wait
+	    if (list_empty(&client_list.list_node)) { //should use wait
 	        //printf("client_list empty\n");
 	        continue;
 	    }
@@ -133,10 +132,17 @@ fail2:
 void cdp_stream_resize(u32 wid, u16 width, u16 height)
 {
 	struct window_node *iter;
+	if(width % 2){
+    	width--;
+    }
+    if(height % 2){
+    	height--;
+    }
     list_for_each_entry(iter, &window_list.list_node, list_node) {
 	    if(iter->window->id == wid){
-	    	pthread_cancel(iter->sthread);
-	    	pthread_create(&iter->sthread, NULL, stream_thread, iter);
+	    	iter->refresh = 1;
+	    	iter->nwidth = width;
+	    	iter->nheight = height;
 	        break;
 	    }
 	}

@@ -12,6 +12,7 @@
 #include <x264.h>
 #include "list.h"
 #include "libyuv/convert.h"
+#include "cdp_defs.h"
 #include "cdp_server.h"
 #include "cdp_protocol.h"
 #include "cdp_stream.h"
