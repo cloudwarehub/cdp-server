@@ -77,6 +77,7 @@ void *stream_thread(void *data)
 	    	height = windownode->nheight;
 			param->i_width = windownode->nwidth;
 			param->i_height = windownode->nheight;
+			x264_param_apply_profile(param, "baseline");
 			x264_picture_clean(&pic);
 			x264_picture_alloc(&pic, param->i_csp, param->i_width, param->i_height);
 			x264_encoder_close(h);
@@ -136,16 +137,16 @@ void cdp_stream_resize(u32 wid, u16 width, u16 height)
 {
 	struct window_node *iter;
 	if(width % 2){
-    	width--;
+    	width = width--;
     }
     if(height % 2){
-    	height--;
+    	height = height--;
     }
     list_for_each_entry(iter, &window_list.list_node, list_node) {
 	    if(iter->window->id == wid){
-	    	iter->refresh = 1;
 	    	iter->nwidth = width;
 	    	iter->nheight = height;
+	    	iter->refresh = 1;
 	        break;
 	    }
 	}
