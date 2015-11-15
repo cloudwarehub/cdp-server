@@ -162,6 +162,7 @@ void *xorg_thread()
             	        if(!iter->sthread)
                             pthread_create(&iter->sthread, NULL, stream_thread, iter);
             	        cdp_message_show_window(iter->window);
+            	        iter->force_keyframe = 1;
             	        break;
             	    }
             	}

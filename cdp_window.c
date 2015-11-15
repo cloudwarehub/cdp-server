@@ -17,6 +17,7 @@ struct window_node *add_window(cdp_window_t *window)
     windownode = (struct window_node*)malloc(sizeof(struct window_node));
     windownode->window = window;
     windownode->sthread = 0;
+    windownode->force_keyframe = 0;
     list_add_tail(&windownode->list_node, &window_list.list_node);
     return windownode;
 }

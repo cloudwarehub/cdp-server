@@ -74,7 +74,7 @@ void *stream_thread(void *data)
 	        continue;
 	    }
 	    if(list_empty(&client_list.list_node)){ //should use wait
-	        printf("client_list empty\n");
+	        //printf("client_list empty\n");
 	        continue;
 	    }
 		img = xcb_get_image_reply(xconn,
@@ -92,6 +92,12 @@ void *stream_thread(void *data)
 			    pic.img.plane[2], width / 2,
 			    width, height );
 		free(img);
+		if (windownode->force_keyframe) {
+			pic.i_type = X264_TYPE_KEYFRAME;
+			windownode->force_keyframe = 0;
+		}else{
+			pic.i_type = X264_TYPE_AUTO;
+		}
 	    pic.i_pts = i_frame;
     	i_frame_size = x264_encoder_encode(h, &nal, &i_nal, &pic, &pic_out);
     	if (i_frame_size < 0) {
