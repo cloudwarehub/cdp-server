@@ -75,6 +75,7 @@ void *stream_thread(void *data)
 	    if (windownode->refresh) {
 	    	width = windownode->nwidth;
 	    	height = windownode->nheight;
+	    	param->i_csp = X264_CSP_I420;
 			param->i_width = windownode->nwidth;
 			param->i_height = windownode->nheight;
 			x264_param_apply_profile(param, "baseline");
