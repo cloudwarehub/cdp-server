@@ -41,7 +41,7 @@ void *stream_thread(void *data)
 	param.i_width = width;
 	param.i_height = height;
 	param.i_slice_max_size = 1490; // size less than MTU(1500) for udp
-	param.i_keyint_max = 60;
+	//param.i_keyint_max = 60;
 	
 	param.b_vfr_input = 0;
 	param.b_repeat_headers = 1;

@@ -177,6 +177,7 @@ typedef struct {
     u32 length;
     u32 window;
     u32 frame_size;
+    //data
 } cdp_message_window_frame_t;
 
 typedef struct {

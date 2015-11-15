@@ -35,6 +35,10 @@ struct client_node *add_client(struct sockaddr_in sockaddr, int resource)
     client->sockaddr = sockaddr;
     client->resource = resource;
     list_add_tail(&client->list_node, &client_list.list_node);
+    struct window_node *iter;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+        iter->force_keyframe = 1;
+    }
     return client;
 }
 
