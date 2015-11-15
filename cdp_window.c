@@ -18,6 +18,7 @@ struct window_node *add_window(cdp_window_t *window)
     windownode->window = window;
     windownode->sthread = 0;
     windownode->force_keyframe = 0;
+    windownode->refresh = 0;
     if(window->width % 2){
     	windownode->nwidth = window->width - 1;
     }
