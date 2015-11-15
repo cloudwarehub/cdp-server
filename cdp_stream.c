@@ -73,6 +73,11 @@ void *stream_thread(void *data)
 	for (;; i_frame++) {
 	    usleep(interval);
 	    if (windownode->refresh) {
+	    	windownode->refresh = 0;
+	    	pthread_create(&windownode->sthread, NULL, stream_thread, windownode);
+	    	break;
+	    	
+	    	
 	    	width = windownode->nwidth;
 	    	height = windownode->nheight;
 	    	param->i_csp = X264_CSP_I420;
