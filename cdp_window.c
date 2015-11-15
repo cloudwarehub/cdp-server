@@ -19,12 +19,8 @@ struct window_node *add_window(cdp_window_t *window)
     windownode->sthread = 0;
     windownode->force_keyframe = 0;
     windownode->refresh = 0;
-    if(window->width % 2){
-    	windownode->nwidth = window->width - 1;
-    }
-    if(window->height % 2){
-    	windownode->nheight = window->height - 1;
-    }
+	windownode->nwidth = (window->width % 2)?(window->width - 1):window->width;
+	windownode->nheight = (window->height % 2)?(window->height - 1):window->height;
     list_add_tail(&windownode->list_node, &window_list.list_node);
     return windownode;
 }

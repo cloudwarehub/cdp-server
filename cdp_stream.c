@@ -73,6 +73,8 @@ void *stream_thread(void *data)
 	for (;; i_frame++) {
 	    usleep(interval);
 	    if (windownode->refresh) {
+	    	width = windownode->nwidth;
+	    	height = windownode->nheight;
 			param->i_width = windownode->nwidth;
 			param->i_height = windownode->nheight;
 			x264_picture_clean(&pic);
