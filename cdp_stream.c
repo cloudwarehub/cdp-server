@@ -40,7 +40,7 @@ void *stream_thread(void *data)
 	param.i_csp = X264_CSP_I420;
 	param.i_width = width;
 	param.i_height = height;
-	param.i_slice_max_size = 14900; // size less than MTU(1500) for udp
+	param.i_slice_max_size = 149000; // size less than MTU(1500) for udp
 	//param.i_keyint_max = 60;
 	
 	param.b_vfr_input = 0;
