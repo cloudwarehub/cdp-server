@@ -74,7 +74,7 @@ void *stream_thread(void *data)
 	}
 	for (;; i_frame++) {
 	    usleep(interval);
-	    if (windownode->refresh) {
+	    if (0) {
 			pthread_mutex_lock(&window->lock);
 	    	windownode->refresh = 0;
 	    	pthread_create(&windownode->sthread, NULL, stream_thread, windownode);
@@ -159,6 +159,8 @@ void cdp_stream_resize(u32 wid, u16 width, u16 height)
 	    	iter->window->nheight = height;
 	    	iter->refresh = 1;
 			pthread_mutex_unlock(&iter->window->lock);
+			pthread_cancel(iter->sthread);
+			pthread_create(&iter->sthread, NULL, stream_thread, iter);
 	        break;
 	    }
 	}
