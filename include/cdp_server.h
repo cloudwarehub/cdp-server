@@ -20,6 +20,7 @@ typedef struct {
 struct client_node{
     struct list_head list_node;
     struct sockaddr_in sockaddr;
+    int resource;
 };
 
 struct window_node{

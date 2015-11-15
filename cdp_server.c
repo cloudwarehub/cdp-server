@@ -29,12 +29,24 @@ int sockfd; // UDP sockfd
 // when set to 1, x264 output keyframe to all clients
 int force_keyframe = 0;
 
-struct client_node *add_client(struct sockaddr_in sockaddr)
+struct client_node *add_client(struct sockaddr_in sockaddr, int resource)
 {
     struct client_node *client = (struct client_node*)malloc(sizeof(struct client_node));
     client->sockaddr = sockaddr;
+    client->resource = resource;
     list_add_tail(&client->list_node, &client_list.list_node);
     return client;
+}
+
+void remove_client(int resource)
+{
+    struct client_node *iter;
+    list_for_each_entry(iter, &client_list.list_node, list_node) {
+        if (iter->resource == resource) {
+            list_del(&iter->list_node);
+            break;
+        }
+    }
 }
 
 void recover(struct sockaddr_in client)
@@ -45,16 +57,23 @@ void recover(struct sockaddr_in client)
     }
 }
 
+int resource = 1; // global client id, used for unlisten
+
 void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
 {
     switch(buf[0]) {
         case CDP_REQUEST_LISTEN:
             printf("new listen client\n");
-            add_client(sockaddr);
+            struct client_node *node = add_client(sockaddr, resource++);
+            cdp_message_listen_reply_t msg;
+            msg.msgtype = CDP_MESSAGE_LISTEN_REPLY;
+            msg.resource = node->resource;
+            cdp_cast_message(&msg, sizeof(msg));
             recover(sockaddr);
             break;
         case CDP_REQUEST_UNLISTEN:
             printf("unlisten client\n");
+            remove_client(((cdp_request_unlisten_t*)buf)->resource);
             break;
         case CDP_REQUEST_MOUSEMOVE: ;
             cdp_request_mousemove_t *req = (cdp_request_mousemove_t*)buf;

@@ -5,12 +5,13 @@
 #include <cdp_defs.h>
 
 enum CDP_MESSAGE {
-    CDP_MESSAGE_CREATE_WINDOW,
+    CDP_MESSAGE_CREATE_WINDOW = 0,
     CDP_MESSAGE_DESTROY_WINDOW,
     CDP_MESSAGE_SHOW_WINDOW,
     CDP_MESSAGE_HIDE_WINDOW,
-    CDP_MESSAGE_WINDOW_FRAME,
-    CDP_MESSAGE_CONFIGURE_WINDOW
+    CDP_MESSAGE_WINDOW_FRAME = 4,
+    CDP_MESSAGE_CONFIGURE_WINDOW,
+    CDP_MESSAGE_LISTEN_REPLY
 };
 
 enum CDP_REQUEST {
@@ -31,6 +32,19 @@ enum CDP_REQUEST {
 /**
  * requests
  **/
+ 
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+} cdp_request_listen_t;
+
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 resource;
+} cdp_request_unlisten_t;
 
 typedef struct {
     u8 reqtype;
@@ -95,9 +109,25 @@ typedef struct {
     i16 y;
 } cdp_request_window_move_t;
 
+typedef struct {
+    u8 reqtype;
+    u8 _pad;
+    u16 length;
+    u32 wid;
+    u16 width;
+    u16 height;
+} cdp_request_window_resize_t;
+
 /**
  * messages
  **/
+typedef struct {
+    u8 msgtype;
+    u8 _pad;
+    u16 sequence;
+    u32 length;
+    u32 resource;
+} cdp_message_listen_reply_t;
 
 typedef struct {
     u8 msgtype;
@@ -161,8 +191,7 @@ typedef struct {
     u16 height;
     u32 above;
     u8 override;
-    u8 _pad1;
-    u16 _pad2;
+    u8 _pad1[3];
 } cdp_message_configure_window_t;
 
 #endif

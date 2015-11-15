@@ -74,7 +74,7 @@ void *stream_thread(void *data)
 	        continue;
 	    }
 	    if(list_empty(&client_list.list_node)){ //should use wait
-	        //printf("client_list empty\n");
+	        printf("client_list empty\n");
 	        continue;
 	    }
 		img = xcb_get_image_reply(xconn,
