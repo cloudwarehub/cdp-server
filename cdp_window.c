@@ -93,7 +93,6 @@ cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height,
 	if(!window){
 	    return window;
 	}
-	pthread_mutex_lock(&window->lock);
     window->x = x;
     window->y = y;
     window->width = width;
@@ -102,7 +101,6 @@ cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height,
     window->nheight = (window->height % 2)?(window->height - 1):window->height;
     window->override = override;
     window->above = above;
-	pthread_mutex_unlock(&window->lock);
 	return window;
 }
 

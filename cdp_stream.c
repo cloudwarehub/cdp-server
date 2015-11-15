@@ -21,10 +21,10 @@ void *stream_thread(void *data)
     uint16_t width;
     uint16_t height;
     
-	pthread_mutex_lock(&window->lock);
-    width = window->nwidth;
-    height = window->nheight;
-	pthread_mutex_unlock(&window->lock);
+    width = window->width;
+    height = window->height;
+    toeven(&width);
+    toeven(&height);
     
     if(height <= 4 || width <= 4){
         return;
@@ -146,19 +146,8 @@ fail2:
 void cdp_stream_resize(u32 wid, u16 width, u16 height)
 {
 	struct window_node *iter;
-	if(width % 2){
-    	width = width--;
-    }
-    if(height % 2){
-    	height = height--;
-    }
     list_for_each_entry(iter, &window_list.list_node, list_node) {
 	    if(iter->window->id == wid){
-			pthread_mutex_lock(&iter->window->lock);
-	    	iter->window->nwidth = width;
-	    	iter->window->nheight = height;
-	    	iter->refresh = 1;
-			pthread_mutex_unlock(&iter->window->lock);
 			pthread_cancel(iter->sthread);
 			pthread_create(&iter->sthread, NULL, stream_thread, iter);
 	        break;
