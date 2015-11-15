@@ -79,6 +79,7 @@ void *stream_thread(void *data)
 			x264_picture_alloc(&pic, param->i_csp, param->i_width, param->i_height);
 			x264_encoder_close(h);
 			h = x264_encoder_open(param);
+			windownode->refresh = 0;
 	    }
 	    if (!window->viewable) { //should use wait
 	        continue;
