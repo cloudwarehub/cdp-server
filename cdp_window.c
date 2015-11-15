@@ -19,8 +19,9 @@ struct window_node *add_window(cdp_window_t *window)
     windownode->sthread = 0;
     windownode->force_keyframe = 0;
     windownode->refresh = 0;
-	windownode->nwidth = (window->width % 2)?(window->width - 1):window->width;
-	windownode->nheight = (window->height % 2)?(window->height - 1):window->height;
+	window->nwidth = (window->width % 2)?(window->width - 1):window->width;
+	window->nheight = (window->height % 2)?(window->height - 1):window->height;
+	//window->lock = PTHREAD_MUTEX_INITIALIZER;
     list_add_tail(&windownode->list_node, &window_list.list_node);
     return windownode;
 }
@@ -92,12 +93,16 @@ cdp_window_t *cdp_window_configure(u32 wid, i16 x, i16 y, u16 width, u16 height,
 	if(!window){
 	    return window;
 	}
+	pthread_mutex_lock(&window->lock);
     window->x = x;
     window->y = y;
     window->width = width;
     window->height = height;
+    window->nwidth = (window->width % 2)?(window->width - 1):window->width;
+    window->nheight = (window->height % 2)?(window->height - 1):window->height;
     window->override = override;
     window->above = above;
+	pthread_mutex_unlock(&window->lock);
 	return window;
 }
 

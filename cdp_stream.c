@@ -21,8 +21,10 @@ void *stream_thread(void *data)
     uint16_t width;
     uint16_t height;
     
-    width = windownode->nwidth;
-    height = windownode->nheight;
+	pthread_mutex_lock(&window->lock);
+    width = window->nwidth;
+    height = window->nheight;
+	pthread_mutex_unlock(&window->lock);
     
     if(height <= 4 || width <= 4){
         return;
@@ -73,13 +75,15 @@ void *stream_thread(void *data)
 	for (;; i_frame++) {
 	    usleep(interval);
 	    if (windownode->refresh) {
+			pthread_mutex_lock(&window->lock);
 	    	windownode->refresh = 0;
 	    	pthread_create(&windownode->sthread, NULL, stream_thread, windownode);
+			pthread_mutex_unlock(&window->lock);
 	    	break;
 	    	
 	    	
-	    	width = windownode->nwidth;
-	    	height = windownode->nheight;
+	    	width = window->nwidth;
+	    	height = window->nheight;
 	    	param->i_csp = X264_CSP_I420;
 			param->i_width = windownode->nwidth;
 			param->i_height = windownode->nheight;
@@ -150,9 +154,11 @@ void cdp_stream_resize(u32 wid, u16 width, u16 height)
     }
     list_for_each_entry(iter, &window_list.list_node, list_node) {
 	    if(iter->window->id == wid){
-	    	iter->nwidth = width;
-	    	iter->nheight = height;
+			pthread_mutex_lock(&iter->window->lock);
+	    	iter->window->nwidth = width;
+	    	iter->window->nheight = height;
 	    	iter->refresh = 1;
+			pthread_mutex_unlock(&iter->window->lock);
 	        break;
 	    }
 	}

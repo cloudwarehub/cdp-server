@@ -13,6 +13,9 @@ typedef struct {
     int16_t y;
     uint16_t width;
     uint16_t height;
+    u16 nwidth;
+    u16 nheight;
+    pthread_mutex_t lock;
     char override;
     char viewable;
     uint32_t above;
