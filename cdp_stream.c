@@ -67,9 +67,13 @@ void *stream_thread(void *data)
 
 	int	luma_size = window->width * window->height;
 	int	chroma_size	= luma_size / 4;
-	xcb_get_image_reply_t	*img;
+	xcb_get_image_reply_t *img;
+	int interval = 60000;
+	if (windownode->window->override) {
+		interval = 200000;
+	}
 	for (;; i_frame++ ) {
-	    usleep(60000);
+	    usleep(interval);
 	    if(!window->viewable){ //should use wait
 	        continue;
 	    }
