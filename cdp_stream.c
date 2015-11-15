@@ -132,7 +132,7 @@ void cdp_stream_resize(u32 wid, u16 width, u16 height)
 	struct window_node *iter;
     list_for_each_entry(iter, &window_list.list_node, list_node) {
 	    if(iter->window->id == wid){
-	    	pthread_kill(iter->sthread, SIGKILL);
+	    	pthread_kill(iter->sthread, SIGQUIT);
 	    	pthread_create(&iter->sthread, NULL, stream_thread, iter);
 	        break;
 	    }
