@@ -109,3 +109,15 @@ void cdp_window_move(u32 wid, i16 x, i16 y)
 	    }
 	}
 }
+
+void cdp_window_resize(u32 wid, u16 width, u16 height)
+{
+    struct window_node *iter;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+	    if(iter->window->id == wid){
+	        iter->window->width = width;
+	        iter->window->height = height;
+	        break;
+	    }
+	}
+}

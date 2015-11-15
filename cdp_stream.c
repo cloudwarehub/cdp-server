@@ -3,12 +3,16 @@
 #include <stdlib.h>
 #include <x264.h>
 #include <xcb/xcb.h>
+#include <pthread.h>
+#include <signal.h>
+#include "cdp_defs.h"
 #include "list.h"
 #include "cdp_server.h"
 #include "cdp_stream.h"
 
 extern struct client_node client_list;
 extern xcb_connection_t *xconn;
+extern struct window_node window_list;
 
 void *stream_thread(void *data)
 {
@@ -29,43 +33,43 @@ void *stream_thread(void *data)
     if(height % 2){
     	height--;
     }
-    x264_param_t param;
+    x264_param_t *param = &windownode->param;
 	x264_picture_t pic, pic_out;
 	x264_t *h;
 	int i_frame = 0;
 	int i_frame_size;
 	x264_nal_t *nal;
 	int i_nal;
-	x264_param_default_preset(&param, "veryfast", "zerolatency");
-	param.i_csp = X264_CSP_I420;
-	param.i_width = width;
-	param.i_height = height;
-	param.i_slice_max_size = 149000; // size less than MTU(1500) for udp
+	x264_param_default_preset(param, "veryfast", "zerolatency");
+	param->i_csp = X264_CSP_I420;
+	param->i_width = width;
+	param->i_height = height;
+	param->i_slice_max_size = 149000; // size less than MTU(1500) for udp
 	//param.i_keyint_max = 60;
 	
-	param.b_vfr_input = 0;
-	param.b_repeat_headers = 1;
-	param.b_annexb = 1;
-	param.rc.f_rf_constant = 30;
+	param->b_vfr_input = 0;
+	param->b_repeat_headers = 1;
+	param->b_annexb = 1;
+	param->rc.f_rf_constant = 30;
 	
 
-	if (x264_param_apply_profile(&param, "baseline" ) < 0) {
+	if (x264_param_apply_profile(param, "baseline" ) < 0) {
 	    printf("[Error] x264_param_apply_profile\n");
 	    return;
 	}
 
-	if (x264_picture_alloc(&pic, param.i_csp, param.i_width, param.i_height) < 0) {
+	if (x264_picture_alloc(&pic, param->i_csp, param->i_width, param->i_height) < 0) {
 	    printf("[Error] x264_picture_alloc\n");
 	    return;
 	}
 
-	h = x264_encoder_open(&param);
+	h = x264_encoder_open(param);
 	if (!h){
 	    printf("[Error] x264_encoder_open\n");
 		goto fail2;
 	}
 
-	int	luma_size = window->width * window->height;
+	int	luma_size = param->i_width * param->i_width;
 	int	chroma_size	= luma_size / 4;
 	xcb_get_image_reply_t *img;
 	int interval = 60000;
@@ -121,4 +125,16 @@ fail3:
 	x264_encoder_close(h);
 fail2:
 	x264_picture_clean(&pic);
+}
+
+void cdp_stream_resize(u32 wid, u16 width, u16 height)
+{
+	struct window_node *iter;
+    list_for_each_entry(iter, &window_list.list_node, list_node) {
+	    if(iter->window->id == wid){
+	    	pthread_kill(iter->sthread, SIGKILL);
+	    	pthread_create(&iter->sthread, NULL, stream_thread, iter);
+	        break;
+	    }
+	}
 }

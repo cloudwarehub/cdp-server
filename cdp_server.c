@@ -104,6 +104,9 @@ void handle_message(char *buf, int sockfd, struct sockaddr_in sockaddr)
             cdp_window_move(crwm->wid, crwm->x, crwm->y);
             cdp_x11_request_window_move(crwm->wid, crwm->x, crwm->y);
             break;
+        case CDP_REQUEST_WINDOW_RESIZE:
+            cdp_request_window_resize((cdp_request_window_resize_t*)buf);
+            break;
     }
 }
 
